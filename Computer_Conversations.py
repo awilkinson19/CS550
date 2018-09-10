@@ -1,7 +1,34 @@
 import random as r
+'''
+Sept. 10, 2018
+Computer Conversations
+	It's an unpolished electronic assistant. It has its
+store of bad jokes and songs to select for you, and can
+write down a list for you as well.
+
+Overview:
+- sets joke and song libraries, turns on, and gets name.
+- asks for a choice of activity and then...
+	if keyword 'list' is said
+	- makes a list by splitting the sentence at the commas, 
+	then it removes the beginning of the sentence and the 
+	'and' and '.'. Then it prints the sentence
+
+	if keyword 'song' is said
+	- selects a song from the library for you to play
+
+	if keyword 'joke' is said
+	- selects a joke from the library to tell
+
+	if keywords 'off' or 'quit' are said
+	- asks if you want to quit and then quits if answer is yes
+
+	if nothing, or after anything but a quit command
+	- start loop over again at asking for a choice
+'''
 
 jokes = ["Why didn't the skeleton cross the road?\nBecause it didn't have the guts to do it."]
-songs = ["Despacito", "Fireflies", "Happy Birthday"]
+songs = ["Despacito", "Fireflies", "Happy Birthday", "Africa"]
 on = True
 name = input("Hello, I'm your electronic assistant.\nWhat's your name?\n> ").capitalize()
 print("Hello, "+name+"!")
