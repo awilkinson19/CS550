@@ -6,6 +6,26 @@ players = []
 wrong_inputs = 0
 wrong_inputs_per_turn = wrong_inputs / turn
 
+def ask(question, options=None, double_check=False, option_type=None):
+	asking = True
+	while asking:
+		answer = input(question)
+		if options != None:
+			if answer not in options:
+				print("I'm sorry, but that's not a valid answer")
+		if double_check:
+			keep = input(f"You responded {answer}, do you want to keep that response?\nRespond with either Yes or No\n>>> ")
+			if keep == "Yes":
+				break
+			elif keep != "No":
+				print("This isn't rocket science, I gave you two options: Yes or No\nYet, you just refused to pick one.\nLet's start from the top!")
+				continue
+		if option_type != None:
+			if type(answer) != option_type:
+				print(f"I'm sorry, you need to respond with the data type {option_type}.\nTry again.")
+		asking = False
+	return answer
+
 class Poker:
 	def __init__(self):
 		self.deck = []
@@ -58,26 +78,25 @@ class Poker:
 		# self.pot = 0
 		pass
 	def action(self):
-		# for p in playing:
-		# 	choice = p.choose_action()
-		# 	if choice[0] == "Fold":
-		# 		playing.remove(p)
-		# 		print(p.name, "folds.")
-		# 	else:
-		# 		bet = self.top_contribution - p.contribution
-		# 		self.pot += bet
-		# 		p.chips -= bet
-		# 		p.contribution += bet
-		# 		if choice[0] == "Call":
-		# 			print(p.name, "calls.")
-		# 		elif choice[0] == "Raise":
-		# 			r = choice[1]
-		# 			self.pot += r
-		# 			p.chips -= r
-		# 			print(p.name, "raises by", r, "chips.")
-		# 			self.top_contribution += r
-		# 			self.last_raiser = p
-		pass
+		for p in playing:
+			choice = p.choose_action()
+			if choice[0] == "Fold":
+				playing.remove(p)
+				print(p.name, "folds.")
+			else:
+				bet = self.top_contribution - p.contribution
+				self.pot += bet
+				p.chips -= bet
+				p.contribution += bet
+				if choice[0] == "Call":
+					print(p.name, "calls.")
+				elif choice[0] == "Raise":
+					r = choice[1]
+					self.pot += r
+					p.chips -= r
+					print(p.name, "raises by", r, "chips.")
+					self.top_contribution += r
+					self.last_raiser = p
 	def reset(self):
 		playing = players
 		for i in players:
@@ -112,8 +131,12 @@ class Bot(Player):
 
 class User(Player):
 	def choose_action(self):
-		actions = ["Fold", "Call", "Raise"]
-		return random.choice(actions), random.randint(0, self.chips // 100)
+		action = ask("What do you want to do?\nFold, Call, or Raise\n>>> ", options=["Fold", "Call", "Raise"])
+		if action == "Raise":
+			value = ask("Write the amount you want to raise by:\n>>> ", option_type=int)
+		else:
+			value = 0
+		return action, value
 
 class Event:
 	def __init__(self, turns=None, turn_conditions=None, chance=None, comment=None):
@@ -160,23 +183,6 @@ class GuessingGame(Event):
 			print(f"Sorry! You were too high, you guessed {guess} and it was {computer}")
 		else:
 			print(f"Sorry! You were too low, you guessed {guess} and it was {computer}")
-
-def ask(question, options=None, double_check=False):
-	asking = True
-	while asking:
-		answer = input(question)
-		if options != None:
-			if answer not in options:
-				print("I'm sorry, but that's not a valid answer")
-		if double_check:
-			keep = input(f"You responded {answer}, do you want to keep that response?\nRespond with either Yes or No\n>>> ")
-			if keep == "Yes":
-				break
-			elif keep != "No":
-				print("This isn't rocket science, I gave you two options: Yes or No\nYet, you just refused to pick one, let's start from the top.")
-				continue
-		asking = False
-	return answer
 
 print("Hello and welcome to the Poker Championships!\n\nYou're carrying a bag of chips as you enter a dimly lit room with a large poker table in the center. The players look at you. \"Have a seat\" one says, you sit down and start playing.")
 
