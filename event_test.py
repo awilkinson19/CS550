@@ -1,28 +1,40 @@
 import random
+import poker_score as p
+import time
 
 events = []
 turn = 2
 players = []
 wrong_inputs = 0
 wrong_inputs_per_turn = wrong_inputs / turn
+bet_on_table = False
+bet = 0
 
 def ask(question, options=None, double_check=False, option_type=None):
 	asking = True
 	while asking:
 		answer = input(question)
+		if answer == "Quit":
+			quit()
 		if options != None:
 			if answer not in options:
 				print("I'm sorry, but that's not a valid answer")
-		if double_check:
-			keep = input(f"You responded {answer}, do you want to keep that response?\nRespond with either Yes or No\n>>> ")
-			if keep == "Yes":
-				break
-			elif keep != "No":
-				print("This isn't rocket science, I gave you two options: Yes or No\nYet, you just refused to pick one.\nLet's start from the top!")
-				continue
+				asking = True
 		if option_type != None:
 			if type(answer) != option_type:
 				print(f"I'm sorry, you need to respond with the data type {option_type}.\nTry again.")
+				asking = True
+		if double_check:
+			keep = input(f"You response: {answer}\nDo you want to keep that response?\nRespond with either Yes or No\n>>> ")
+			asking = True
+			if keep == "Yes":
+				pass
+			elif keep == "No":
+				print("OK, from the top!")
+				asking = True
+			else:
+				print("This isn't rocket science, I gave you two options: Yes or No\nYet, you just refused to pick one.\nLet's start from the top!")
+				asking = True
 		asking = False
 	return answer
 
@@ -36,9 +48,10 @@ class Poker:
 		self.top_contribution = 0
 		self.last_raiser = None
 		self.suit_str = {1:'C', 2:"D", 3:"H", 4:"S"}
-		self.num_str = {1:"A",2:"2",3:"3",4:"4",5:"5",6:"6",7:"7",8:"8",9:"9",10:"10",11:"J",12:"Q",13:"K"}
+		self.num_str = {2:"2",3:"3",4:"4",5:"5",6:"6",7:"7",8:"8",9:"9",10:"10",11:"J",12:"Q",13:"K", 14: "A"}
+		self.strength_str = {1:"High Card", 2:"Pair", 2:"Two Pairs", 3:"Straight", 4:"Flush", 5:"Full House", 6:"Four of a Kind", 7:"Straight Flush", 8:"Royal Straight"}
 	def build(self):
-		for number in range(1, 14):
+		for number in range(2, 15):
 			for suit in range(1, 5):
 				self.deck.append((number, suit))
 	def shuffle(self):
@@ -69,34 +82,12 @@ class Poker:
 		print("The river is: " + self.card_str(self.table[4]))
 		self.action()
 	def ante(self):
-		playing[-2].chips -= self.blind
-		playing[-1].chips -= self.blind * 2
-		self.pot += self.blind * 3
-	def declare_winner(self):
-		# winner = playing[0]
-		# winner.chips += self.pot
-		# self.pot = 0
+		playing[-2].bet(self.blind)
+		playing[-1].bet(self.blind * 2)
+	def declare_winner(self, hands):
 		pass
 	def action(self):
-		for p in playing:
-			choice = p.choose_action()
-			if choice[0] == "Fold":
-				playing.remove(p)
-				print(p.name, "folds.")
-			else:
-				bet = self.top_contribution - p.contribution
-				self.pot += bet
-				p.chips -= bet
-				p.contribution += bet
-				if choice[0] == "Call":
-					print(p.name, "calls.")
-				elif choice[0] == "Raise":
-					r = choice[1]
-					self.pot += r
-					p.chips -= r
-					print(p.name, "raises by", r, "chips.")
-					self.top_contribution += r
-					self.last_raiser = p
+		pass
 	def reset(self):
 		playing = players
 		for i in players:
@@ -106,6 +97,7 @@ class Poker:
 		self.deck = []
 		self.build()
 		self.shuffle()
+		bet_on_table = False
 	def card_str(self, input):
 		to_return = ""
 		if type(input) == list:
@@ -119,19 +111,46 @@ class Poker:
 class Player:
 	def __init__(self, name):
 		self.name = name
-		self.cards = []
+		self.hand = []
 		self.chips = 1000
 		self.contribution = 0
 		players.append(self)
+		def get_actions(self):
+			to_return = []
+			if bet_on_table:
+				to_return.append("Fold")
+				if self.chips >= bet:
+					to_return.append("Call")
+					if self.chips > bet * 2:
+						to_return.append("Raise")
+				to_return.append("All-In")
+			else:
+				to_return.append("Check")
+				to_return.append("Bet")
+				to_return.append("All-In")
+			return to_return
+		def strength(self):
+			hand = table + self.hand
+			return p.score(hand)
+		def bet(self, amount):
+			self.chips -= amount
+			poker.pot += amount
+			if bet_on_table == False:
+				bet_on_table == True
+				bet = amount
+			if bet_on_table == True:
+				if bet < amount:
+					bet += amount
 
 class Bot(Player):
 	def choose_action(self):
-		actions = ["Fold", "Call", "Raise"]
+		actions = self.get_actions()
 		return random.choice(actions), random.randint(0, self.chips // 100)
 
 class User(Player):
 	def choose_action(self):
-		action = ask("What do you want to do?\nFold, Call, or Raise\n>>> ", options=["Fold", "Call", "Raise"])
+		options = self.get_actions()
+		action = ask(f"What do you want to do?\nYour options are: {options}\n>>> ", options=options)
 		if action == "Raise":
 			value = ask("Write the amount you want to raise by:\n>>> ", option_type=int)
 		else:
@@ -212,6 +231,6 @@ for i in range(0, 10):
 	poker.flop()
 	poker.turn()
 	poker.river()
-	poker.declare_winner()
+	poker.declare_winner([p.hand for p in playing])
 	end_turn.check()
 	turn += 1

@@ -75,7 +75,7 @@ def score(hand):
         else:           #Has Only 3 of A Kind
             score = 3
                 
-            kicker = pairs.keys()       #Gets the value of the 3 of a king
+            kicker = [k for k in pairs]       #Gets the value of the 3 of a kind
             key = kicker[0]
                 
             #Gets a list of all the cards remaining once the three of a kind is removed
@@ -234,18 +234,9 @@ def score(hand):
     #-------------------High Card--------------------
     #------------------------------------------------
     if score == 0:      #If the score is 0 then high card is the best possible hand
-            
-        #It will keep track of only the card's value
-        kicker = [int(card[0]) for card in hand]
-        #Reverses the list for easy comparison in the event of a tie
-        kicker.reverse()
-        #Since the hand is sorted it will pop the two lowest cards position 0, 1 of the list
-        kicker.pop()
-        kicker.pop()       
-        #The reason we reverse then pop is because lists are inefficient at popping from
-        #the beginning of the list, but fast at popping from the end therefore we reverse 
-        #the list and then pop the last two elements which will be the two lowest cards
-        #in the hand        
+        # Had to redo this code because the github guy didn't do it for hands < 7
+        hand.sort()
+        kicker = [hand[-2][0]]
         
     #Return the score, and the kicker to be used in the event of a tie
     return [score, kicker[0]]
