@@ -1,5 +1,3 @@
-import ask as a
-
 players = []
 
 class Player:

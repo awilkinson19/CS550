@@ -1,5 +1,3 @@
-import time
-
 def sprint(statement, t=0.03, end_time=0.5):
 	lines = statement.split('\n')
 	for line in lines:

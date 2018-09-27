@@ -1,9 +1,5 @@
-import players as p
-
-players = p.players
 bet_on_table = False
 bet = 0
-user = p.user
 table = []
 
 class Poker:
