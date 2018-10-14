@@ -20,7 +20,7 @@ def ask(question, options=None, double_check=False, option_type=None, end='\n', 
 		if answer == "Quit":
 			quit()
 
-		# If a true/false response is wanted, make sure a yes or no is received
+		# If a true/false response is wanted, make sure a yes or no is received and return a bool
 		if boolean:
 			if answer in ["Yes", 'yes', 'Y', 'y']:
 				return True
