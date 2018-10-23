@@ -1,6 +1,7 @@
 from PIL import Image as i
 import random as r
 import sys
+import os
 
 testing = False
 progress = True
@@ -18,6 +19,8 @@ class Image:
 			self.width = width
 		self.file_type = file_type
 		self.path = self.name + "." + self.file_type.lower()
+		if os.path.exists(self.path):
+			os.remove(self.path)
 		self.color_type = color_type
 		self.im = i.new(self.color_type, (self.width, self.height))
 		self.save()
@@ -36,7 +39,10 @@ class Image:
 
 	# Places a color at a certain pixel
 	def put(self, coordinate, color=(0, 0, 0)):
-		self.im.putpixel(coordinate, color)
+		try:
+			self.im.putpixel(coordinate, color)
+		except IndexError:
+			pass
 
 	# Fills the image
 	def fill(self, color):
@@ -49,19 +55,27 @@ class Image:
 		self.im.show()
 
 	# Draws an isosceles triangle
-	def triangle(self, start_point, side_length, height, color=(0, 0, 0), testing=True, range_testing=False, up=True, increment=1):
+	def triangle(self, start_point, side_length, height=None, color=(0, 0, 0), testing=True, range_testing=False, up=True, increment=1):
 		x, y = start_point
-		h = 0
-		base = y
+		if up:
+			h = increment
+		else:
+			h = -increment
+		base = y - h
 		rising = True
+		max_height = increment * side_length / 2
+		if height == None or height > max_height:
+			height = max_height
+		if testing:
+			print(f"H: {height}, U: {up}, B: {base}")
 		for a in range(side_length):
-			for b in range(int(h)):
-				if range_testing:
-					print(x+a, int(y-b), end=' ')
-				self.put((x+a, int(y-b)), color)
-			if range_testing:
-				print('')
 			if up:
+				for b in range(int(h)):
+					if range_testing:
+						print(x+a, int(y-b), end=' ')
+					self.put((x+a, int(y-b)), color)
+					if range_testing:
+						print('')
 				if h < height and rising:
 					h += increment
 				if h >= height and rising:
@@ -73,39 +87,19 @@ class Image:
 				if y-h < base and not rising:
 					h -= increment
 			else:
-				pass
-
-		# rising = True
-		# x, y = start_point
-		# h = 0
-		# going = True
-		# base = y
-		# first_time = True
-		# for a in range(side_length):
-		# 	self.put((x, y), color)
-		# 	if up:
-		# 		print(rising, end=' ')
-		# 		if not rising or h != 0:
-		# 			for b in range(int(h)):
-		# 				if range_testing:
-		# 					print(x, y-b, end=' ')
-		# 				self.put((x, y-b), color)
-		# 			if range_testing:
-		# 				print('')
-		# 	else:
-		# 		for b in range(int(h)):
-		# 			self.put((x, y+b), color)
-		# 	if h != 0 or first_time:
-		# 		if rising:
-		# 			h -= increment
-		# 		if h == height:
-		# 			rising = False
-		# 		if not rising:
-		# 			h += increment
-		# 	x += 1
-		# 	first_time = False
-		# 	if testing:
-		# 		print(f"X: {x}, Y: {y}, H: {h}")
+				for nb in range(-int(h)):
+					b = -nb
+					if range_testing:
+						print(x+a, int(y-b), end=' ')
+					self.put((x+a, int(y-b)), color)
+				if h > -height and rising:
+					h -= increment
+				if h <= -height and rising:
+					rising = False
+					if testing:
+						print(rising)
+				if y-h > base and not rising:
+					h += increment
 
 	# Draws a square on the image
 	def square(self, w, h, color=(0, 0, 0)):
