@@ -3,11 +3,12 @@ import random as r
 import sys
 
 testing = False
+progress = True
 
 # Image class
 class Image:
 	def __init__(self, name, height, width, file_type="PNG", color_type="RGB", s=False):
-		if sys:
+		if s:
 			self.name = sys.argv[1]
 			self.height = int(sys.argv[2])
 			self.width = int(sys.argv[3])
@@ -46,6 +47,53 @@ class Image:
 	# Shows the image
 	def show(self):
 		self.im.show()
+
+	# Draws an isosceles triangle
+	def triangle(self, start_point, side_length, height, color=(0, 0, 0), testing=False, range_testing=True, up=True, increment=1):
+		x, y = start_point
+		h = 0
+		for a in range(side_length):
+			for b in range(int(h)):
+				if range_testing:
+					print(x+a, int(y+b), end=' ')
+				self.put((x+a, int(y+b)), color)
+			if up:
+				if h < height:
+					h += increment
+			else:
+				pass
+
+		# rising = True
+		# x, y = start_point
+		# h = 0
+		# going = True
+		# base = y
+		# first_time = True
+		# for a in range(side_length):
+		# 	self.put((x, y), color)
+		# 	if up:
+		# 		print(rising, end=' ')
+		# 		if not rising or h != 0:
+		# 			for b in range(int(h)):
+		# 				if range_testing:
+		# 					print(x, y-b, end=' ')
+		# 				self.put((x, y-b), color)
+		# 			if range_testing:
+		# 				print('')
+		# 	else:
+		# 		for b in range(int(h)):
+		# 			self.put((x, y+b), color)
+		# 	if h != 0 or first_time:
+		# 		if rising:
+		# 			h -= increment
+		# 		if h == height:
+		# 			rising = False
+		# 		if not rising:
+		# 			h += increment
+		# 	x += 1
+		# 	first_time = False
+		# 	if testing:
+		# 		print(f"X: {x}, Y: {y}, H: {h}")
 
 	# Draws a square on the image
 	def square(self, w, h, color=(0, 0, 0)):
