@@ -49,17 +49,29 @@ class Image:
 		self.im.show()
 
 	# Draws an isosceles triangle
-	def triangle(self, start_point, side_length, height, color=(0, 0, 0), testing=False, range_testing=True, up=True, increment=1):
+	def triangle(self, start_point, side_length, height, color=(0, 0, 0), testing=True, range_testing=False, up=True, increment=1):
 		x, y = start_point
 		h = 0
+		base = y
+		rising = True
 		for a in range(side_length):
 			for b in range(int(h)):
 				if range_testing:
-					print(x+a, int(y+b), end=' ')
-				self.put((x+a, int(y+b)), color)
+					print(x+a, int(y-b), end=' ')
+				self.put((x+a, int(y-b)), color)
+			if range_testing:
+				print('')
 			if up:
-				if h < height:
+				if h < height and rising:
 					h += increment
+				if h >= height and rising:
+					if testing:
+						print(rising)
+					rising = False
+					if testing:
+						print(rising)
+				if y-h < base and not rising:
+					h -= increment
 			else:
 				pass
 

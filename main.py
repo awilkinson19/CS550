@@ -22,7 +22,7 @@ def sierpinski(image, start, side, height, testing=False):
 		boo = not boo
 		image.triangle((x, y), side, height, color=tuple(color), up=boo, increment=2)
 
-sierpinski(triangle, (0, 999), 999, 100, testing=True)
+sierpinski(triangle, (0, 999), 1000, 750, testing=True)
 
 
 triangle.save()
