@@ -92,7 +92,7 @@ m.show()
 # Second Mandelbrot
 m2 = Image("mandelbrot2", imgx, imgy)
 
-xa, xb = -1.2, -1.5
+xa, xb = -1.2, -1.3
 ya, yb = .18, 0.07
 
 for h in range(m2.height):
@@ -106,7 +106,7 @@ for h in range(m2.height):
 
 		a = man**0.5 * 6
 		s = man%4**5
-		v = math.log(man)**6
+		v = math.log(man**0.5)**8
 
 		m2.put((w, h), (a, s, v), color_type="hsv")
 
