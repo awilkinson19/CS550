@@ -12,7 +12,7 @@ def progress(total, r=20, decimal=2, name=""):
 	percent = int((10**decimal)*100*p/total)/10**decimal
 	bar = ''
 	for x in range(r):
-		if percent/(100/r) > x:
+		if percent/(100/r) >= x+1:
 			bar += '='
 		else:
 			bar += '-'

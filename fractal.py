@@ -2,20 +2,31 @@ from pillow import Image
 import math
 import progress as p
 import sys
+import math
 
 testing = True
-s = True
+s = False
+i = False
 
-xa, xb = -2.0, 2.0
-ya, yb = -2.0, 2.0
+xa, xb = .4, .37
+ya, yb = .25, .35
+
 if s:
 	xa, xb = float(sys.argv[1]), float(sys.argv[2])
 	ya, yb = float(sys.argv[3]), float(sys.argv[4])
-imgx, imgy = 1000, 1000
+	c = float(sys.argv[5])
+
+if i:
+	xa = float(input("Xa: "))
+	xb = float(input("Xb: "))
+	ya = float(input("Ya: "))
+	yb = float(input("Yb: "))
+	c = float(input("C: "))
+
+imgx, imgy = 256, 256
 max_depth = 256
 m = Image("mandelbrot", imgx, imgy)
 j = Image("julia", imgx, imgy)
-c = -.75
 
 # Julia:
 def julia(z, c):
@@ -35,29 +46,50 @@ def mandelbrot(c):
 		depth += 1
 	return depth
 
-# for h in range(m.height):
-# 	y = h * (yb - ya) / (m.height - 1) + ya
-# 	for w in range(m.width):
-# 		p.progress(m.height*m.width, name=m.name)
-# 		x = w * (xb - xa) / (m.width - 1) + xa
-# 		c = complex(x, y)
-# 		r, g, b = 1*mandelbrot(c), 0*mandelbrot(c), 0*mandelbrot(c)
+for h in range(m.height):
+	y = h * (yb - ya) / (m.height - 1) + ya
+	for w in range(m.width):
+		p.progress(m.height*m.width, name="Mandelbrot")
+		x = w * (xb - xa) / (m.width - 1) + xa
+		c = complex(x, y)
+		man = mandelbrot(c)+1
+		r, g, b = 0, 0, 0
 
-# 		m.put((w, h), (r, g, b))
+		if man%2==0:
+			r = man
+		g = man
+		b = man / man%4
 
-# m.save()
-# m.show()
+		m.put((w, h), (r, g, b), color_type="hsv")
 
-for h in range(j.height):
-	y = h * (yb - ya) / (j.height - 1) + ya
-	for w in range(j.width):
-		# p.progress(j.height*j.width, name="Julia")
-		x = w * (xb - xa) / (j.width - 1) + xa
-		z = complex(x, y)
-		jul = julia(z, c)
-		r, g, b = jul, jul, jul
+m.save()
+m.show()
 
-		j.put((int(w), int(h)), (r, g, b), color_type="hsv")
+# Julia vals
+# xa, xb = .6, .4
+# ya, yb = .15, .35
+# c = -.75
 
-j.save()
-j.show()
+# for h in range(j.height):
+# 	y = h * (yb - ya) / (j.height - 1) + ya
+# 	for w in range(j.width):
+# 		p.progress(j.height*j.width, name="Julia")
+# 		x = w * (xb - xa) / (j.width - 1) + xa
+# 		z = complex(x, y)
+# 		jul = julia(z, c) + 1
+# 		r, g, b = 240, 100, 50
+
+# 		# Hue, picks color
+# 		r = 179/jul%4
+
+# 		# Saturation
+# 		g = 256
+
+# 		# Brightness Values
+# 		b = 256 / 2
+
+# 		j.put((int(w), int(h)), (r, g, b), color_type="hsv")
+
+
+# j.save()
+# j.show()

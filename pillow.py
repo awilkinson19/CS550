@@ -44,13 +44,13 @@ class Image:
 			maximum = [0, 0, 0]
 			minimum = maximum
 			color = c.hsv_to_rgb(color[0], color[1], color[2])
-			for i, x in enumerate(color):
-				if x < minimum[i]:
-					minimum[i] = x
-					print(f"Min {i}: {minimum[i]}")
-				if x < maximum[i]:
-					maximum[i] = x
-					print(f"Max {i}: {x}")
+			# for i, x in enumerate(color):
+			# 	if x < minimum[i]:
+			# 		minimum[i] = x
+			# 		print(f"Min {i}: {minimum[i]}")
+			# 	if x < maximum[i]:
+			# 		maximum[i] = x
+			# 		print(f"Max {i}: {x}")
 		try:
 			self.im.putpixel(coordinate, color)
 		except TypeError:
