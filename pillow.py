@@ -51,6 +51,8 @@ class Image:
 			# 	if x < maximum[i]:
 			# 		maximum[i] = x
 			# 		print(f"Max {i}: {x}")
+		elif color_type == "yiq":
+			color = c.yiq_to_rgb(color[0], color[1], color[2])
 		try:
 			self.im.putpixel(coordinate, color)
 		except TypeError:

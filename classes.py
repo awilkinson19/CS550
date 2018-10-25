@@ -20,6 +20,7 @@ class Dog:
 		else:
 			self.status = "too tired to play"
 
+	def stats(self):
 		return 	f"Name: {self.name}\nWeight: {self.weight}\nMood: {self.mood}\nSize: {self.size}\nAge: {self.age}\nEnergy: {self.energy}\nFood: {self.food}\nStatus: {self.status}"
 
 fido = Dog("Fido")

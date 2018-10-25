@@ -8,6 +8,8 @@ import math
 10/25/18
 Alex Wilkinson
 It uses colorsys with the Julia and the Mandelbrot sets to create colored images of those sets.
+Each of the three images is generated in a similar way, with the values modified and then passed in as hsv values through the pillow file.
+
 On my honor, I have neither given nor received unauthorized aid.
 '''
 
@@ -15,8 +17,8 @@ testing = True
 s = False
 i = False
 
-xa, xb = .4, .37
-ya, yb = .25, .35
+xa, xb = 2, -2
+ya, yb = 2, -2
 
 if s:
 	xa, xb = float(sys.argv[1]), float(sys.argv[2])
@@ -30,10 +32,8 @@ if i:
 	yb = float(input("Yb: "))
 	c = float(input("C: "))
 
-imgx, imgy = 1000, 1000
+imgx, imgy = 1024, 1024
 max_depth = 256
-m = Image("mandelbrot", imgx, imgy)
-j = Image("julia", imgx, imgy)
 
 # Julia:
 def julia(z, c):
@@ -53,21 +53,69 @@ def mandelbrot(c):
 		depth += 1
 	return depth
 
-# for h in range(m.height):
-# 	y = h * (yb - ya) / (m.height - 1) + ya
-# 	for w in range(m.width):
-# 		p.progress(m.height*m.width, name="Mandelbrot")
-# 		x = w * (xb - xa) / (m.width - 1) + xa
-# 		c = complex(x, y)
-# 		man = mandelbrot(c)+1
-# 		r, g, b = 0, 0, 0
+# First Mandelbrot
 
-# 		m.put((w, h), (r, g, b), color_type="hsv")
+# Create the image through the pillow file
+m = Image("mandelbrot", imgx, imgy)
 
-# m.save()
-# m.show()
+# Pick Values for the image
+xa, xb = .4, .37
+ya, yb = .25, .29
 
-# Julia vals
+# Iterate through the image while calculating the Mandelbrot function
+for h in range(m.height):
+	y = h * (yb - ya) / (m.height - 1) + ya
+	for w in range(m.width):
+
+		# Progress bar function
+		p.progress(m.height*m.width, name="Mandelbrot")
+
+		x = w * (xb - xa) / (m.width - 1) + xa
+		c = complex(x, y)
+		man = mandelbrot(c)+1
+
+		# Initializes hsv values (h was set to height, so it's now a)
+		a, s, v = 0, 0, 0
+
+		# Modifies values to make it interesting
+		a = (man/4)%4 * 1
+		s = man%4 * 60
+		v = (man%4 * 6)**2
+
+		# Puts in a pixel with the specified color
+		m.put((w, h), (a, s, v), color_type="hsv")
+
+# Saves and shows the image
+m.save()
+m.show()
+
+# Second Mandelbrot
+m2 = Image("mandelbrot2", imgx, imgy)
+
+xa, xb = -1.2, -1.5
+ya, yb = .18, 0.07
+
+for h in range(m2.height):
+	y = h * (yb - ya) / (m2.height - 1) + ya
+	for w in range(m2.width):
+		p.progress(m2.height*m2.width, name="Mandelbrot")
+		x = w * (xb - xa) / (m2.width - 1) + xa
+		c = complex(x, y)
+		man = mandelbrot(c)+1
+		a, s, v = 0, 0, 0
+
+		a = man**0.5 * 6
+		s = man%4**5
+		v = math.log(man)**6
+
+		m2.put((w, h), (a, s, v), color_type="hsv")
+
+m2.save()
+m2.show()
+
+# Julia
+j = Image("julia", imgx, imgy)
+
 xa, xb = .6, .4
 ya, yb = .15, .35
 c = -.75
@@ -79,18 +127,13 @@ for h in range(j.height):
 		x = w * (xb - xa) / (j.width - 1) + xa
 		z = complex(x, y)
 		jul = julia(z, c) + 1
-		r, g, b = 240, 100, 50
+		a, s, v = 0, 0, 0
 
-		# Hue, picks color
-		r = 179/jul%4
+		a = 179/jul%4
+		s = 256
+		v = 256 / 2
 
-		# Saturation
-		g = 256
-
-		# Brightness Values
-		b = 256 / 2
-
-		j.put((int(w), int(h)), (r, g, b), color_type="hsv")
+		j.put((w, h), (a, s, v), color_type="hsv")
 
 
 j.save()
