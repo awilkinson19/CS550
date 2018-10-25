@@ -2,6 +2,7 @@ from PIL import Image as i
 import random as r
 import sys
 import os
+import colorsys as c
 
 testing = False
 progress = True
@@ -38,8 +39,22 @@ class Image:
 		self.im.save(self.path, self.file_type)
 
 	# Places a color at a certain pixel
-	def put(self, coordinate, color=(0, 0, 0)):
+	def put(self, coordinate, color=(0, 0, 0), color_type=None):
+		if color_type == "hsv":
+			maximum = [0, 0, 0]
+			minimum = maximum
+			color = c.hsv_to_rgb(color[0], color[1], color[2])
+			for i, x in enumerate(color):
+				if x < minimum[i]:
+					minimum[i] = x
+					print(f"Min {i}: {minimum[i]}")
+				if x < maximum[i]:
+					maximum[i] = x
+					print(f"Max {i}: {x}")
 		try:
+			self.im.putpixel(coordinate, color)
+		except TypeError:
+			color = tuple([int(i) for i in color])
 			self.im.putpixel(coordinate, color)
 		except IndexError:
 			pass

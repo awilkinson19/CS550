@@ -45,21 +45,19 @@ def mandelbrot(c):
 
 # 		m.put((w, h), (r, g, b))
 
-# p.reset(name=m.name)
 # m.save()
 # m.show()
 
 for h in range(j.height):
 	y = h * (yb - ya) / (j.height - 1) + ya
 	for w in range(j.width):
-		p.progress(j.height*j.width, name=j.name)
+		# p.progress(j.height*j.width, name="Julia")
 		x = w * (xb - xa) / (j.width - 1) + xa
 		z = complex(x, y)
 		jul = julia(z, c)
-		r, g, b = 1*jul, 0*jul, 0*jul
+		r, g, b = jul, jul, jul
 
-		j.put((w, h), (r, g, b))
+		j.put((int(w), int(h)), (r, g, b), color_type="hsv")
 
-p.reset(name=j.name)
 j.save()
 j.show()

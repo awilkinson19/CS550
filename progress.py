@@ -11,16 +11,14 @@ def progress(total, r=20, decimal=2, name=""):
 	p += 1
 	percent = int((10**decimal)*100*p/total)/10**decimal
 	bar = ''
-	for i in range(r):
-		if percent/(100/r) > i:
+	for x in range(r):
+		if percent/(100/r) > x:
 			bar += '='
 		else:
 			bar += '-'
 	print(f"{name} Progress: |{bar}|{percent}% Time: {t()}s\r", end='')
-
-def reset(name=''):
-	global i
-	i = time.time()
-	global p
-	p = 0
-	print(f"{name} Completed")
+	if p == total:
+		global i
+		i = time.time()
+		p = 0
+		print(f"{name} Completed")
