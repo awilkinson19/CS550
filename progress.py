@@ -1,8 +1,12 @@
 import time
 
-t = time.time()
+i = time.time()
+def t(decimal=2):
+	global i
+	return int(10**decimal*(time.time()-i))/10**decimal
+
 p = 0
-def progress(total, r=20, decimal=2, start=""):
+def progress(total, r=20, decimal=2, name=""):
 	global p
 	p += 1
 	percent = int((10**decimal)*100*p/total)/10**decimal
@@ -12,4 +16,11 @@ def progress(total, r=20, decimal=2, start=""):
 			bar += '='
 		else:
 			bar += '-'
-	print(f"{start} Progress: |{bar}|{percent}% Time: {time.time()-t}\r", end='')
+	print(f"{name} Progress: |{bar}|{percent}% Time: {t()}s\r", end='')
+
+def reset(name=''):
+	global i
+	i = time.time()
+	global p
+	p = 0
+	print(f"{name} Completed")

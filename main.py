@@ -1,8 +1,8 @@
 from pillow import Image
 import math as m
 
-height = 866
-width = 1000
+height = 100
+width = 100
 triangle = Image("triangle", height, width)
 
 triangle.fill((255, 255, 255))
