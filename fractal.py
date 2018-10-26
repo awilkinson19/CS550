@@ -32,7 +32,7 @@ if i:
 	yb = float(input("Yb: "))
 	c = float(input("C: "))
 
-imgx, imgy = 1024, 1024
+imgx, imgy = 256, 256
 max_depth = 256
 
 # Julia:
