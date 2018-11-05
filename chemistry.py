@@ -3,6 +3,8 @@ import csv
 Sources:
 help on __add__() method
 http://www.marinamele.com/2014/04/modifying-add-method-of-python-class.html
+__iter__() help:
+https://docs.python.org/3/tutorial/classes.html#method-objects
 '''
 
 # Clears screen depending on OS
@@ -20,7 +22,8 @@ def pause():
 
 # Get Data
 data_path = open("elements.csv")
-data_reader = csv.reader(data_path)data_header = next(data_reader)
+data_reader = csv.reader(data_path)
+data_header = next(data_reader)
 data = [row for row in data_reader]
 
 def print_vals():
@@ -39,7 +42,6 @@ def assign(var):
 		return float(var)
 
 class Element:
-	
 	def __init__(self, var, quantity=1):
 		self.name = var[0]
 		self.number = int(var[1])
@@ -49,19 +51,96 @@ class Element:
 		self.melt = assign(var[5])
 		self.density_vapour = assign(var[6])
 		self.fusion = assign(var[7])
-    self.quantity = quantity
-    
-  def __str__(self):
-    return self.symbol+str(self.quantity)
+		self.quantity = quantity
+
+	def __str__(self):
+		if self.quantity > 1:
+			return str(self.quantity)+self.symbol
+		else:
+			return self.symbol
 
 	def __add__(self, other):
-    return str(self)+str(other)
+		return Molecule([self, other])
 
-P = Element(data[14])
-print(data[14])
+	def __mul__(self, num):
+		self.quantity *= num
+		return self
 
-def parse():
-	pass
+element = [Element(row) for row in data]
+
+elements = {}
+for i in element:
+	elements[str(i)] = i
+
+class Molecule:
+	def __init__(self, elements, quantity=1):
+		self.index = 0
+		self.elements = elements
+		self.itemized = self.itemize()
+		self.quantity = quantity
+
+	def itemize(self):
+		return [str(i) for i in self.elements]
+
+	def __iter__(self):
+		self.index = -1
+		return self
+
+	def __next__(self):
+		if self.index == len(self.itemized)-1:
+			raise StopIteration
+		self.index += 1
+		return self.itemized[self.index]
+
+	def __str__(self):
+		r = ''
+		if self.quantity != 1:
+			r += str(self.quantity)
+		for i in self.elements:
+			r += i.symbol
+			if i.quantity != 1:
+				r += str(i.quantity)
+		return r
+
+	def __mul__(self, num):
+		self.quantity *= num
+		return self
+
+	def __add__(self, other):
+		elements = self.elements+other.elements
+		return Molecule(elements)
+
+class Table:
+	def __init__(self, elements):
+		self.elements = elements
+
+water = Molecule([elements['H']*2, elements['O']])
+print([i for i in water])
+print(water*3)
+
 
 def userloop():
-  print("Please enter a molecular formula. (Eg. )")
+  #clear()
+  print("Please enter a molecular formula. (Eg. H2O for water)")
+  userget = input('>>> ')
+  for i in range(userget):
+    # Method from StackOverflow - https://stackoverflow.com/questions/15558392/how-to-check-if-character-in-string-is-a-letter-python
+    if userget[i].isalpha() == 1:
+      if userget[i].isupper() == 1:
+        try:
+          if userget[i+1].islower() == 1:
+            print(userget[i] + userget[i+1] + " is an element!")
+          else:
+            print(userget[i] + userget[i+1] + " is an element!")
+    elif userget[i].isdigit() == 1:
+      print(userget[i] + " is a quantity!")
+    elif "(" in userget[i]:
+      print "Charge:"
+      print(userget[userget.find("(")+1 : userget.find(")")])
+      break
+    else:
+      print(userget[i] + " is neither an element nor a quantity!")
+      break
+  userloop()
+
+userloop()
