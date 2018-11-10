@@ -20,38 +20,28 @@ def clear():
 def pause():
 	input("Press ENTER to continue...")
 
-# Get Data
-data_path = open("elements.csv")
-data_reader = csv.reader(data_path)
-data_header = next(data_reader)
-data = [row for row in data_reader]
-
 def print_vals():
-	print(data_header)
-	for i in range(0, len(data)):
-		print(data[i])
-
-for i in data:
-	while len(i) < len(data_header):
-		i.append('')
-
-def assign(var):
-	if var == '':
-		return None
-	else:
-		return float(var)
+  print(data_header)
+  for i in range(0, len(data)):
+    print(data[i])
 
 class Element:
 	def __init__(self, var, quantity=1):
 		self.name = var[0]
 		self.number = int(var[1])
 		self.symbol = var[2]
-		self.weight = assign(var[3])
-		self.boil = assign(var[4])
-		self.melt = assign(var[5])
-		self.density_vapour = assign(var[6])
-		self.fusion = assign(var[7])
+		self.weight = self.assign(var[3])
+		self.boil = self.assign(var[4])
+		self.melt = self.assign(var[5])
+		self.density_vapour = self.assign(var[6])
+		self.fusion = self.assign(var[7])
 		self.quantity = quantity
+	
+  def assign(self, var):
+  	if var == '':
+  		return None
+  	else:
+  		return float(var)
 
 	def __str__(self):
 		if self.quantity > 1:
@@ -65,12 +55,6 @@ class Element:
 	def __mul__(self, num):
 		self.quantity *= num
 		return self
-
-element = [Element(row) for row in data]
-
-elements = {}
-for i in element:
-	elements[str(i)] = i
 
 class Molecule:
 	def __init__(self, elements, quantity=1):
@@ -110,37 +94,63 @@ class Molecule:
 		elements = self.elements+other.elements
 		return Molecule(elements)
 
-class Table:
-	def __init__(self, elements):
-		self.elements = elements
+class PeriodicTable:
+	def __init__(self, csv_path):
+	  # Get Data
+    data_path = open("elements.csv")
+    data_reader = csv.reader(data_path)
+    data_header = next(data_reader)
+    data = [row for row in data_reader]
+    for i in data:
+	    while len(i) < len(data_header):
+		  i.append('')
+    element = [Element(row) for row in data]
+    elements = {}
+    for i in element:
+	    elements[str(i)] = i
+	  self.elements = elements
 
 water = Molecule([elements['H']*2, elements['O']])
 print([i for i in water])
 print(water*3)
 
-
 def userloop():
+  class Temporary:
+    def __init__(self,coeff,atom,number):
+      self.coeff = coeff
+      self.atom = atom
+      self.number = number
   #clear()
   print("Please enter a molecular formula. (Eg. H2O for water)")
   userget = input('>>> ')
   for i in range(userget):
     # Method from StackOverflow - https://stackoverflow.com/questions/15558392/how-to-check-if-character-in-string-is-a-letter-python
-    if userget[i].isalpha() == 1:
-      if userget[i].isupper() == 1:
-        try:
-          if userget[i+1].islower() == 1:
-            print(userget[i] + userget[i+1] + " is an element!")
-          else:
-            print(userget[i] + userget[i+1] + " is an element!")
-    elif userget[i].isdigit() == 1:
+    # Check for a coefficient (number in front of capital)
+    if userget[i].isdigit() == 1:
+    	if userget[i+1].isupper() == 1:
+    	  if i == 0:
+    	    tempcoeff = userget[i]
+        elif userget[i-1] == "+":
+          tempcoeff = userget[i]
+        else:
+          tempcoeff = 1
+          tempnumber = 1
+    # Check for an element (capital letter)
+    if userget[i].isupper() == 1:
+      try:
+        if userget[i+1].islower() == 1:
+          print(userget[i] + userget[i+1] + " is an element!")
+          tempatom = userget[i] + userget[i+1]
+        else:
+          print(userget[i] + " is an element!")
+          tempatom = userget[i]
+    if userget[i].isdigit() == 1:
       print(userget[i] + " is a quantity!")
-    elif "(" in userget[i]:
-      print "Charge:"
+    if "(" in userget[i]:
+      print("Charge:")
       print(userget[userget.find("(")+1 : userget.find(")")])
       break
-    else:
-      print(userget[i] + " is neither an element nor a quantity!")
-      break
+  print(tempcoeff)
+  print(tempatom)
+  print(tempnumber)
   userloop()
-
-userloop()
