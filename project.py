@@ -4,6 +4,29 @@ import numpy as np
 import re
 import csv
 
+'''
+Description:
+There are three main classes. The Periodic Table class turns the rows of the csv file into an Element class. The element class has many built in functions, like multiplication and addition. The Molecule class returns an object very similar to an element, except it returns values for the entire molecule, like the total weight. The Variables class is meant to be a repository for variables I can use across classes and functions, just because I don't like the global statement. The main thing we added was a pygame simulation of how various atoms would interact. This is done by using the run_game function and the Object class, which creates a circle with attributes like velocity, radius, color, and what to display on it.
+
+All of the above is made available to the user through the userloop function, which parses input into the parts of the input (so the parts of H + H would be the molecule/element, the operation, and the second molecule/element) and elements of a molecule (so H2O would become [H2, O]). The user can also call functions like simulate, set variable, etc.
+
+
+Sources:
+help on __add__ method
+http://www.marinamele.com/2014/04/modifying-add-method-of-python-class.html
+__iter__ help:
+https://docs.python.org/3/tutorial/classes.html#method-objects
+pygame help from:
+https://www.youtube.com/watch?v=i6xMBig-pP4 and the next few episodes in the series
+
+
+Honor Code:
+On my honor, I have neither given nor received unauthorized aid.
+Alex Wilkinson
+Daniel Heredia
+'''
+
+# Stores variables I need later on
 class Variables:
   def __init__(self):
     self.win_height = 750
@@ -18,6 +41,7 @@ class Variables:
     self.turquoise = (0, 255, 255)
 var = Variables()
 
+# Creates an Element class to store all the data from the csv files
 class Element:
   def __init__(self, var, quantity=1):
     self.name = var[0]
@@ -32,13 +56,16 @@ class Element:
     self.size = self.get_size()
     self.color = self.get_color()
 
+  # Setters and Getters
   def get_size(self):
+    # In the periodic table, size goes (from small to large) top to bottom, then right to left
     ranges = [(1, 2), (3, 10), (11, 18), (19, 36), (37, 54), (55, 86), (87, 103)]
     for a, b in ranges:
       if self.number in range(a, b+1):
         return int(a + b - self.number)
 
   def get_color(self):
+    # The color coding is for use with pygame and it replicates color coding on the periodic table
     ranges = [(1, 2), (3, 10), (11, 18), (19, 36), (37, 54), (55, 86), (87, 103)]
     for idx, (a, b) in enumerate(ranges):
       if self.number in range(a, b+1):
@@ -57,7 +84,7 @@ class Element:
         else:
           return var.red
   
-  def set_name(self,string):
+  def set_name(self, string):
     self.name = string
   
   def get_name(self):
@@ -111,6 +138,7 @@ class Element:
       else:
         return float(var)
 
+  # Built-ins
   def __str__(self):
     if self.quantity > 1:
       return str(self.quantity)+self.symbol
@@ -124,6 +152,7 @@ class Element:
     self.quantity *= num
     return self
 
+# Molecule class, it's useful for linking multiple elements and for finding things like their combined weight
 class Molecule:
   def __init__(self, elements, quantity):
     self.index = 0
@@ -137,6 +166,7 @@ class Molecule:
       weight += element.weight * quantity
     return weight*self.quantity
 
+  # Iteration returns each element in the list, but not the quantity
   def __iter__(self):
     self.index = -1
     return self
@@ -157,6 +187,7 @@ class Molecule:
         r += str(quantity)
     return r
 
+  # Other Built-ins
   def __mul__(self, num):
     self.quantity *= num
     return self
@@ -165,6 +196,7 @@ class Molecule:
     elements = self.elements+other.elements
     return Molecule(elements)
 
+# Periodic table class
 class PeriodicTable:
   def __init__(self, csv_path):
     # Get Data
@@ -179,9 +211,14 @@ class PeriodicTable:
     self.dict = {}
     for i in self.list:
       self.dict[str(i)] = i
+    
+    # Started using element_dict and element_list, but they were cumbersome so I switched to dict and list
+    # These are left in because of code already written with element_dict and element_list
     self.element_dict = self.dict
     self.element_list = self.list
     self.index = -1
+  
+  # Iteration returns each element in the table
   def __iter__(self):
     self.index = -1
     return self
@@ -193,12 +230,15 @@ class PeriodicTable:
 
 Table = PeriodicTable("elements.csv")
 
+# This is a class for a ball in the pygame simulation, meant to represent 1 atom
 class Object:
   def __init__(self, direction=(0, 0), speed=1, radius=50, postion=(int(var.win_width/2), int(var.win_height/2)), color=(255, 0, 0), mass=1, element=None):
     self.x, self.y = postion
     self.radius = radius
+    # dx and dy are the change in x and y between frames
     self.dx, self.dy = direction
-    self.mass = int(np.sqrt(mass))
+    # I didn't want the masses to be too different for the simulation, especially because the sizes are being scaled down
+    self.mass = int(np.log(mass))
     self.speed = speed
     self.color = color
     if element != None:
@@ -210,6 +250,7 @@ class Object:
 
   def e_init(self):
     self.mass = self.element.weight
+    # Size is scaled so you can actually see H
     self.radius = int(np.log(self.element.size) * 30)
     self.color = self.element.color
 
@@ -247,30 +288,39 @@ class Object:
       self.y = var.win_height - self.radius
       self.dy *= -1
 
+  # This is the collision function, I just liked that I could use a built-in for collisions
   def __add__(self, other):
     distance = np.sqrt((self.x - other.x)**2+(self.y - other.y)**2)
+    # If the distance is 0, push the objects away from eachother
     if distance == 0:
       other.x -= other.dx / other.mass
       other.y -= other.dy / other.mass
       distance = np.sqrt((self.x - other.x)**2+(self.y - other.y)**2)
-      assert distance > 0
+    # These are to show the direction of the hit
     xdiff = self.x-other.x
     ydiff = self.y-other.y
+    # I didn't use actual physics, this was guessing what felt right to have as the new forces
     x_force = (xdiff / distance) * other.mass/self.mass * 2
     y_force = (ydiff / distance) * other.mass/self.mass * 2
+    # Average new force with previous trajectory
     self.dx = (self.dx+x_force)/2
     self.dy = (self.dy+y_force)/2
 
-
+# Runs pygame simulation
 def run_game(elements):
   p.init()
   p.font.init()
+  # Give each atom a random initial trajectory
   atoms = []
   for i in elements:
+    # Pick sin
     dx = r.random()
+    # Calculate corresponding cos
     dy = np.sqrt(1 - dx**2)
+    # Pick directions
     dx *= r.choice([-1, 1])
     dy *= r.choice([-1, 1])
+    # Add to Object class
     atoms.append(Object(direction=(dx, dy), element=i))
   # Game program
   small_font = p.font.SysFont('Calibri', 24)
@@ -299,18 +349,26 @@ def run_game(elements):
         if other != atom:
           distance = np.sqrt((atom.x - other.x)**2+(atom.y - other.y)**2)
           if distance <= atom.radius + other.radius:
+            # If two points are closer than the sum of their radii to eachother, then they collide
             atom + other
 
+    # Slow simulation
     keys = p.key.get_pressed()
     if keys[p.K_SPACE]:
       p.time.delay(100)
+    # End simulation
     if keys[p.K_ESCAPE] or keys[p.K_RETURN]:
       run = False
+    # Add background color
     var.win.fill((255, 255, 255))
+    # Add corner text
     var.win.blit(small_text, (0, 0))
+    # Draw atoms
     [a.draw() for a in reversed(atoms)]
+    # Update display
     p.display.update()
 
+  # End of sim text
   textpos = big_text.get_rect()
   textpos.centerx = var.win.get_rect().centerx
   textpos.centery = 50
@@ -322,9 +380,11 @@ class Terminal:
   def __init__(self):
     pass
   
+  # Introductory statement
   def userhelp(self):
     print("Possible functions:\ninfo (molecule) [summation...] - to display data for a specific molecular formula\ntable - to list all elements on the Periodic Table\nset (parameter) (element symbol) (new value) - to change an element's value\nget (parameter) (element symbol)\nsimulate - to run a simulation of the atoms in various molecules\nhelp - to display this prompt\nquit - to exit the terminal")
-    
+  
+  # Parses CeH4... into [Ce, H4, ...] by looking for uppercase letters  
   def parse(self,string):
     chunks = []
     chunk = ''
@@ -337,12 +397,14 @@ class Terminal:
     chunks.append(chunk)
     return chunks
   
+  # Gets a parameter from an element
   def get_param(self, usersplit):
     try:
       if len(usersplit) < 3:
         raise KeyError
       element = Table.dict[usersplit[2]]
     except KeyError:
+      # Value Errors in get_param, set_param, and info are to tell the self.run() function that the user inputed something that didn't work
       raise ValueError
     try:
       if usersplit[1] == "weight":
@@ -405,13 +467,15 @@ class Terminal:
     except ValueError:
       return ValueError
  
+  # Returns info on chemical formulas and simulates atoms
   def info(self, usersplit, simulate=0):
     try:
       if len(usersplit) < 2:
         raise ValueError
+      # Regular expression to check type of input is correctly formatted
       if bool([re.match("^[A-Za-z0-9\+\-\(\) ]*$", i) for i in usersplit]) == False:
-        raise KeyError
-    except KeyError:
+        raise ValueError
+    except ValueError:
       raise ValueError
     tempcaption = ""
     for i,x in enumerate(usersplit):
@@ -466,7 +530,7 @@ class Terminal:
     [print(f"{i.name}({i.symbol}) - {i.number}, {i.weight}amu") for i in molecule]
     print(f"Total Mass of Molecule: {molecule.weight + proton}amu")
 
-
+    # If simulating, put all the elements info was gathered on into a list and then simulate
     if simulate == 1:
       game_list = []
       for element, quantity in molecule.elements:
@@ -474,14 +538,17 @@ class Terminal:
           game_list.append(element)
       run_game(game_list)
  
+  # Prints all the items in the table
   def table(self):
     for i in Table:
       print(f"{i.name}({i}) - {i.weight}amu")
 
+  # Quits
   def quit(self):
     print("Goodbye.")
     quit()
-    
+  
+  # The main loop for the user
   def run(self):
     while True:
       userget = input('>>> ')
@@ -512,5 +579,11 @@ try:
   terminal.userhelp()
   terminal.run()
 except KeyboardInterrupt:
-  print()
+  print("Goodbye...")
   terminal.quit()
+
+
+
+
+
+
