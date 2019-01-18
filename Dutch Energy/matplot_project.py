@@ -99,26 +99,28 @@ def get_csv(path):
 
 	return [data[i] for i in data]
 
-path = 'dutch-energy/'
-data = []
-for directory in os.listdir(path):
-	if directory[0] != '.':
-		directory += '/'
-		print(directory)
-		data.append([])
-		for i, file in enumerate(os.listdir(path+directory)):
-			print(file)
-			data[-1].append(get_csv(path+directory+file))
-			if testing:
-				break
-			if input('Enter to continue...') != '':
-				break
+def get_data():
+	path = 'dutch-energy/'
+	data = []
+	for directory in os.listdir(path):
+		if directory[0] != '.':
+			directory += '/'
+			print(directory)
+			data.append([])
+			for i, file in enumerate(os.listdir(path+directory)):
+				print(file)
+				data[-1].append(get_csv(path+directory+file))
+				if testing:
+					break
+				if input('Enter to continue...') != '':
+					break
 
-output = [[] for i in range(len(std_header))]
-for directory in data:
-	for file in directory:
-		for index, column in enumerate(file):
-			output[index].append(column)
+def organize_data():
+	output = [[] for i in range(len(std_header))]
+	for directory in data:
+		for file in directory:
+			for index, column in enumerate(file):
+				output[index].append(column)
 
 # separated = [[] for i in range(14)]
 # for i, x in enumerate(output):
@@ -144,20 +146,16 @@ colors = 'red', 'orange', 'yellow', 'green', 'blue', 'purple', 'magenta', 'cyan'
 
 units = 'code of the regional network manager','code of the area where the energy is purchased','Name of the street','the range of zipcodes covered','the range of zipcodes covered', 'Name of the city','Number of connections in the range of zipcodes','Percentage of the net consumption of electricity or gas','Percentage of active connections in the zipcode range','principal type of connection in the zipcode range','percentage of presence of the principal type of connection in the zipcode range, Kwh for electricity, m3 for gas','Consumption percentage during the low tarif hours','percentage of smartmeters in the zipcode ranges'
 
-# This is a list separated by header
-separated = [[] for i in range(14)]
+def graphing():
+	# This is a list separated by header
+	separated = [[] for i in range(14)]
+	# Displaying data for all the files
+	for directory in data:
+		for file in directory:
 
-graphing = False
-
-# Displaying data for all the files
-for directory in data:
-	for file in directory:
-
-		# Completing the separated list
-		for i, x in enumerate(file):
-			separated[i].append(x)
-
-		if graphing:
+			# Completing the separated list
+			for i, x in enumerate(file):
+				separated[i].append(x)
 			f, axs = plt.subplots(2, 7, sharey=True)
 			plt.suptitle("Numerical and Categorical Data")
 			for i, x in enumerate(numerical):
@@ -172,22 +170,22 @@ for directory in data:
 				axs[1][i].set_title(head[i])
 				axs[1][i].set_xlabel(units[i], fontsize=5)
 			plt.show()
-		if not testing and graphing:
-			if input('Enter to continue...') != '':
-				graphing = False
+			if not testing:
+				if input('Enter to continue...') != '':
+					graphing = False
 
-for i, title in enumerate(separated):
-	if i in numerical:
-		plt.hist([x for x in title], stacked=True, color='magenta')
-	else:
-		counted = np.array([count(x) for x in title])
-		names, values = [], []
-		for a, b in counted:
-			names.append(a), values.append(b)
-		plt.bar(names, values, width=0.5)
-	plt.set_title(head[i])
-	plt.set_xlabel(units[i])
-	plt.show()
+		for i, title in enumerate(separated):
+			if i in numerical:
+				plt.hist([x for x in title], stacked=True, color='magenta')
+			else:
+				counted = np.array([count(x) for x in title])
+				names, values = [], []
+				for a, b in counted:
+					names.append(a), values.append(b)
+				plt.bar(names, values, width=0.5)
+			plt.set_title(head[i])
+			plt.set_xlabel(units[i])
+			plt.show()
 
 
 

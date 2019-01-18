@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+# Stacked Bar
+
 categories = ["Dog", "Cat"]
 x = [1, 2]
 y = [20, 10]
@@ -18,6 +20,8 @@ plt.legend((p1[0], p2[0]), ("One", "Two"))
 
 plt.show()
 
+# Stacked Histogram
+
 x = [1, 2]
 y = [1, 1]
 
@@ -32,6 +36,8 @@ plt.title("Title")
 
 plt.show()
 
+# Categorical Subplots
+
 data = {'apples': 10, 'oranges': 15, 'lemons': 5, 'limes': 20}
 names = list(data.keys())
 values = list(data.values())
@@ -42,6 +48,8 @@ axs[1].scatter(names, values)
 axs[2].plot(names, values)
 fig.suptitle('Categorical Plotting')
 plt.show()
+
+# Multiple Bars
 
 men_means, men_std = (20, 35, 30, 35, 27), (2, 3, 4, 1, 2)
 women_means, women_std = (25, 32, 34, 20, 25), (3, 5, 2, 3, 3)
@@ -86,6 +94,7 @@ autolabel(rects2, "right")
 
 plt.show()
 
+# Stacked Graph
 
 x = [1, 2, 3, 4, 5]
 y1 = [1, 1, 2, 3, 5]
